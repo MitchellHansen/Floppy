@@ -55,6 +55,7 @@ int main()
 	float step_size = 0.005f;
 	double frame_time = 0.0, instant_fps = 0.0, render_fps = 0.0, physics_fps = 0.0, elapsed_time = 0.0, delta_time = 0.0, accumulator_time = 0.0, current_time = 0.0;
 	int render_frame_count = 0, physics_frame_count = 0;
+	float speed = 250;
 
 	while (window.isOpen())
 	{
@@ -62,6 +63,11 @@ int main()
 		while (window.pollEvent(event)) {
 			if (event.type == sf::Event::Closed) {
 				window.close();
+			}
+			if (event.type == sf::Event::MouseWheelScrolled) {
+				if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel) {
+					speed += event.mouseWheelScroll.delta * 20;
+				}
 			}
 		}
 
@@ -83,22 +89,22 @@ int main()
 				pipe_up_sprite.setPosition(WINDOW_X, pipe_down_sprite.getPosition().y + pipe_dist);
 			}
 			else {
-				pipe_up_sprite.setPosition(pipe_up_sprite.getPosition().x - step_size * 250, pipe_up_sprite.getPosition().y);
-				pipe_down_sprite.setPosition(pipe_down_sprite.getPosition().x - step_size * 250, pipe_down_sprite.getPosition().y);
+				pipe_up_sprite.setPosition(pipe_up_sprite.getPosition().x - step_size * speed, pipe_up_sprite.getPosition().y);
+				pipe_down_sprite.setPosition(pipe_down_sprite.getPosition().x - step_size * speed, pipe_down_sprite.getPosition().y);
 			}
 
 			if (background_sprite.getPosition().x + background_sprite.getGlobalBounds().width < WINDOW_X) {
 				background_sprite.setPosition(0, 0);
 			}
 			else {
-				background_sprite.setPosition(background_sprite.getPosition().x - step_size * 150, background_sprite.getPosition().y);
+				background_sprite.setPosition(background_sprite.getPosition().x - step_size * (speed - 100), background_sprite.getPosition().y);
 			}
 
 			if (land_sprite.getPosition().x + 10 + land_sprite.getGlobalBounds().width < WINDOW_X) {
 				land_sprite.setPosition(14, land_sprite.getPosition().y);
 			}
 			else {
-				land_sprite.setPosition(land_sprite.getPosition().x - step_size * 250, land_sprite.getPosition().y);
+				land_sprite.setPosition(land_sprite.getPosition().x - step_size * speed, land_sprite.getPosition().y);
 			}
 
 			// Check collisions
