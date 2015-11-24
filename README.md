@@ -1,5 +1,6 @@
 # Floppy
 A clone of a clone of flappy bird, C++, SFML
+
 Written to be as succinct as possible, so it's a lil bit nasty
 
 
