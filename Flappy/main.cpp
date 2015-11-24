@@ -7,7 +7,7 @@
 const float g = 7.8;
 const int WINDOW_X = 600;
 const int WINDOW_Y = 800;
-const int pipe_dist = 300;
+const int pipe_dist = 200;
 
 float elap_time() {
 	static __int64 start = 0;
@@ -27,7 +27,7 @@ float elap_time() {
 int main()
 {
 	std::mt19937 rng(time(NULL));
-	std::uniform_int_distribution<int> rgen(100, 200);
+	std::uniform_int_distribution<int> rgen(100, 400);
 
 	sf::RenderWindow window(sf::VideoMode(WINDOW_X, WINDOW_Y), "flappy");
 	
@@ -52,23 +52,9 @@ int main()
 	sf::Sprite pipe_shaft_sprite = sf::Sprite(pipe_shaft);
 
 	double momentum = 0;
-	int r = 0;
-
 	float step_size = 0.005f;
-
-	double current_time = 0.0;
-	double frame_time = 0.0;
-	double instant_fps = 0.0;
-	double accumulator_time = 0.0;
-
-	int render_frame_count = 0;
-	double render_fps = 0;
-
-	int physics_frame_count = 0;
-	double physics_fps = 0;
-
-	double elapsed_time = 0;
-	double delta_time = 0;
+	double frame_time = 0.0, instant_fps = 0.0, render_fps = 0.0, physics_fps = 0.0, elapsed_time = 0.0, delta_time = 0.0, accumulator_time = 0.0, current_time = 0.0;
+	int render_frame_count = 0, physics_frame_count = 0;
 
 	while (window.isOpen())
 	{
@@ -97,29 +83,29 @@ int main()
 				pipe_up_sprite.setPosition(WINDOW_X, pipe_down_sprite.getPosition().y + pipe_dist);
 			}
 			else {
-				pipe_up_sprite.setPosition(pipe_up_sprite.getPosition().x - step_size * 100, pipe_up_sprite.getPosition().y);
-				pipe_down_sprite.setPosition(pipe_down_sprite.getPosition().x - step_size * 100, pipe_down_sprite.getPosition().y);
+				pipe_up_sprite.setPosition(pipe_up_sprite.getPosition().x - step_size * 250, pipe_up_sprite.getPosition().y);
+				pipe_down_sprite.setPosition(pipe_down_sprite.getPosition().x - step_size * 250, pipe_down_sprite.getPosition().y);
 			}
 
 			if (background_sprite.getPosition().x + background_sprite.getGlobalBounds().width < WINDOW_X) {
 				background_sprite.setPosition(0, 0);
 			}
 			else {
-				background_sprite.setPosition(background_sprite.getPosition().x - step_size * 80, background_sprite.getPosition().y);
+				background_sprite.setPosition(background_sprite.getPosition().x - step_size * 150, background_sprite.getPosition().y);
 			}
 
 			if (land_sprite.getPosition().x + 10 + land_sprite.getGlobalBounds().width < WINDOW_X) {
 				land_sprite.setPosition(14, land_sprite.getPosition().y);
 			}
 			else {
-				land_sprite.setPosition(land_sprite.getPosition().x - step_size * 100, land_sprite.getPosition().y);
+				land_sprite.setPosition(land_sprite.getPosition().x - step_size * 250, land_sprite.getPosition().y);
 			}
 
 			// Check collisions
 			if (flappy.getPosition().y > land_sprite.getPosition().y) {
 				flappy.setPosition(WINDOW_X / 2, WINDOW_Y / 2);
 				momentum = 0;
-				std::cout << "dead";
+				std::cout << "dead\n";
 			}
 
 			sf::Vector2f f_pos = flappy.getPosition();
@@ -128,14 +114,11 @@ int main()
 			if (((f_pos.x < p_pos.x + 26) && (f_pos.x > p_pos.x)) && ((f_pos.y > p_pos.y) || (f_pos.y < p_pos.y - pipe_dist))) {
 				f_pos = sf::Vector2f(WINDOW_X / 2, WINDOW_Y / 2);
 				momentum = 0;
-				std::cout << "dead";
+				std::cout << "dead\n ";
 			}
 
 			// Get input
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-				momentum = -2;
-			}
-			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) || sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 				momentum = -2;
 			}
 
