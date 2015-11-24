@@ -2,11 +2,27 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <random>
+#include <windows.h>
 
 const float g = 7.8;
 const int WINDOW_X = 600;
 const int WINDOW_Y = 800;
 const int pipe_dist = 300;
+
+float elap_time() {
+	static __int64 start = 0;
+	static __int64 frequency = 0;
+
+	if (start == 0) {
+		QueryPerformanceCounter((LARGE_INTEGER*)&start);
+		QueryPerformanceFrequency((LARGE_INTEGER*)&frequency);
+		return 0.0f;
+	}
+
+	__int64 counter = 0;
+	QueryPerformanceCounter((LARGE_INTEGER*)&counter);
+	return (float)((counter - start) / double(frequency));
+}
 
 int main()
 {
@@ -38,10 +54,24 @@ int main()
 	double momentum = 0;
 	int r = 0;
 
+	float step_size = 0.005f;
+
+	double current_time = 0.0;
+	double frame_time = 0.0;
+	double instant_fps = 0.0;
+	double accumulator_time = 0.0;
+
+	int render_frame_count = 0;
+	double render_fps = 0;
+
+	int physics_frame_count = 0;
+	double physics_fps = 0;
+
+	double elapsed_time = 0;
+	double delta_time = 0;
+
 	while (window.isOpen())
 	{
-		std::cout << r++ << std::endl;
-
 		sf::Event event;
 		while (window.pollEvent(event)) {
 			if (event.type == sf::Event::Closed) {
@@ -49,54 +79,73 @@ int main()
 			}
 		}
 
-		// Move pipes, background
+		elapsed_time = elap_time();
+		delta_time = elapsed_time - current_time;
+		current_time = elapsed_time;
+		if (delta_time > 0.02f)
+			delta_time = 0.02f;
+		accumulator_time += delta_time;
 
-		if (pipe_down_sprite.getPosition().x < -pipe_down_sprite.getGlobalBounds().width) {
-			pipe_down_sprite.setPosition(WINDOW_X, rgen(rng));
-			pipe_up_sprite.setPosition(WINDOW_X, pipe_down_sprite.getPosition().y + pipe_dist);
-		}
-		else {
-			pipe_up_sprite.setPosition(pipe_up_sprite.getPosition().x - 0.2, pipe_up_sprite.getPosition().y);
-			pipe_down_sprite.setPosition(pipe_down_sprite.getPosition().x - 0.2, pipe_down_sprite.getPosition().y);
+		while ((accumulator_time - step_size) >= step_size) {
+			accumulator_time -= step_size;
+
+			// Update logic
+			// Move pipes, background, floor
+
+			if (pipe_down_sprite.getPosition().x < -pipe_down_sprite.getGlobalBounds().width) {
+				pipe_down_sprite.setPosition(WINDOW_X, rgen(rng));
+				pipe_up_sprite.setPosition(WINDOW_X, pipe_down_sprite.getPosition().y + pipe_dist);
+			}
+			else {
+				pipe_up_sprite.setPosition(pipe_up_sprite.getPosition().x - step_size * 100, pipe_up_sprite.getPosition().y);
+				pipe_down_sprite.setPosition(pipe_down_sprite.getPosition().x - step_size * 100, pipe_down_sprite.getPosition().y);
+			}
+
+			if (background_sprite.getPosition().x + background_sprite.getGlobalBounds().width < WINDOW_X) {
+				background_sprite.setPosition(0, 0);
+			}
+			else {
+				background_sprite.setPosition(background_sprite.getPosition().x - step_size * 80, background_sprite.getPosition().y);
+			}
+
+			if (land_sprite.getPosition().x + 10 + land_sprite.getGlobalBounds().width < WINDOW_X) {
+				land_sprite.setPosition(14, land_sprite.getPosition().y);
+			}
+			else {
+				land_sprite.setPosition(land_sprite.getPosition().x - step_size * 100, land_sprite.getPosition().y);
+			}
+
+			// Check collisions
+			if (flappy.getPosition().y > land_sprite.getPosition().y) {
+				flappy.setPosition(WINDOW_X / 2, WINDOW_Y / 2);
+				momentum = 0;
+				std::cout << "dead";
+			}
+
+			sf::Vector2f f_pos = flappy.getPosition();
+			sf::Vector2f p_pos = pipe_up_sprite.getPosition();
+
+			if (((f_pos.x < p_pos.x + 26) && (f_pos.x > p_pos.x)) && ((f_pos.y > p_pos.y) || (f_pos.y < p_pos.y - pipe_dist))) {
+				f_pos = sf::Vector2f(WINDOW_X / 2, WINDOW_Y / 2);
+				momentum = 0;
+				std::cout << "dead";
+			}
+
+			// Get input
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+				momentum = -2;
+			}
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+				momentum = -2;
+			}
+
+			momentum += g * step_size;
+			f_pos.y += momentum;
+			flappy.setPosition(f_pos);
+
+			physics_frame_count++;
 		}
 
-		if (background_sprite.getPosition().x + background_sprite.getGlobalBounds().width < WINDOW_X) {
-			background_sprite.setPosition(0, 0);
-		}
-		else {
-			background_sprite.setPosition(background_sprite.getPosition().x - 0.1, background_sprite.getPosition().y);
-		}
-
-		if (land_sprite.getPosition().x + 10 + land_sprite.getGlobalBounds().width < WINDOW_X) {
-			land_sprite.setPosition(14, land_sprite.getPosition().y);
-		}
-		else {
-			land_sprite.setPosition(land_sprite.getPosition().x - 0.2, land_sprite.getPosition().y);
-		}
-
-		if (flappy.getPosition().y > land_sprite.getPosition().y) {
-			flappy.setPosition(WINDOW_X / 2, WINDOW_Y / 2);
-			momentum = 0;
-			std::cout << "dead";
-		}
-
-		sf::Vector2f f_pos = flappy.getPosition();
-		sf::Vector2f p_pos = pipe_up_sprite.getPosition();
-
-		if (((f_pos.x < p_pos.x + 26) && (f_pos.x > p_pos.x)) && ((f_pos.y > p_pos.y) || (f_pos.y < p_pos.y - pipe_dist))) {
-			f_pos = sf::Vector2f(WINDOW_X / 2, WINDOW_Y / 2);
-			momentum = 0;
-			std::cout << "dead";
-		}
-
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
- 			momentum = -.4;
-		}
-
-		momentum += g / 10000;
-		f_pos.y += momentum;
-		flappy.setPosition(f_pos);
 
 		window.clear(sf::Color::Black);
 		window.draw(background_sprite);
@@ -128,3 +177,4 @@ int main()
 	return 0;
 
 }
+
