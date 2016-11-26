@@ -2,25 +2,29 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <random>
-#include <windows.h>
+#include <chrono>
+
+#ifdef linux
+#elif defined _WIN32
+#elif defined TARGET_OS_MAC
+#endif
 
 const float g = 7.8;
 const int WINDOW_X = 600;
 const int WINDOW_Y = 800;
 
 float elap_time() {
-	static __int64 start = 0;
-	static __int64 frequency = 0;
+	static std::chrono::time_point<std::chrono::system_clock> start;
+	static bool started = false;
 
-	if (start == 0) {
-		QueryPerformanceCounter((LARGE_INTEGER*)&start);
-		QueryPerformanceFrequency((LARGE_INTEGER*)&frequency);
-		return 0.0f;
+	if (!started) {
+		start = std::chrono::system_clock::now();
+		started = true;
 	}
 
-	__int64 counter = 0;
-	QueryPerformanceCounter((LARGE_INTEGER*)&counter);
-	return (float)((counter - start) / double(frequency));
+	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+	std::chrono::duration<double> elapsed_time = now - start;
+	return static_cast<float>(elapsed_time.count());
 }
 
 int main()
@@ -35,7 +39,7 @@ int main()
 	// Init flappy
 	sf::Texture flappy_texture[4] = { sf::Texture(), sf::Texture(), sf::Texture(), sf::Texture() };
 	for (int i = 0; i < 4; i++) {
-		flappy_texture[i].loadFromFile("Assets\\bird.png", sf::IntRect(0, i*12, 34, 24));
+		flappy_texture[i].loadFromFile("..\\Assets\\bird.png", sf::IntRect(0, i*12, 34, 24));
 	}
 
 	sf::RectangleShape flappy(sf::Vector2f(34, 24));
@@ -43,13 +47,13 @@ int main()
 	flappy.setPosition(WINDOW_X / 2, WINDOW_Y / 2);
 
 	// Init world
-	sf::Texture background = sf::Texture(); background.loadFromFile("Assets\\sky.png");
+	sf::Texture background = sf::Texture(); background.loadFromFile("..\\Assets\\sky.png");
 	sf::Sprite background_sprite = sf::Sprite(background); background_sprite.setPosition(0, 0); background_sprite.setScale(8, 8);
-	sf::Texture land = sf::Texture(); land.loadFromFile("Assets\\land.png");
+	sf::Texture land = sf::Texture(); land.loadFromFile("..\\Assets\\land.png");
 	sf::Sprite land_sprite = sf::Sprite(land); land_sprite.setPosition(0, WINDOW_Y - WINDOW_Y / 10); land_sprite.setScale(3, 2);
-	sf::Texture pipe_up, pipe_down = sf::Texture(); pipe_down.loadFromFile("Assets\\pipe-down.png"); pipe_up.loadFromFile("Assets\\pipe-up.png");
+	sf::Texture pipe_up, pipe_down = sf::Texture(); pipe_down.loadFromFile("..\\Assets\\pipe-down.png"); pipe_up.loadFromFile("..\\Assets\\pipe-up.png");
 	sf::Sprite pipe_up_sprite = sf::Sprite(pipe_up); sf::Sprite pipe_down_sprite = sf::Sprite(pipe_down);
-	sf::Texture pipe_shaft = sf::Texture(); pipe_shaft.loadFromFile("Assets\\pipe.png");
+	sf::Texture pipe_shaft = sf::Texture(); pipe_shaft.loadFromFile("..\\Assets\\pipe.png");
 	sf::Sprite pipe_shaft_sprite = sf::Sprite(pipe_shaft);
 
 	double momentum = 0;
