@@ -1,8 +1,9 @@
-#include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
 #include <iostream>
 #include <chrono>
-#include <Scroller.h>
+#include <list>
+#include "Scroller.h"
 #include "Birb.h"
 
 #ifdef linux
@@ -46,9 +47,15 @@ int main()
     Scroller land_scroller(window_size, 10.0);
     land_scroller.setSprite("../Assets/land.png", sf::Vector2f(0, window_size.y - 30), sf::Vector2f(3, 2));
 
+    std::list<Scroller> pipes;
+
+    pipes.emplace_back(Scroller(window_size, 100.0));
+    pipes.back().setSprite("../Assets/pipe-up.png", sf::Vector2f(30, 30), sf::Vector2f(1.1,1.1));
 
 	sf::Texture land = sf::Texture(); land.loadFromFile("../Assets/land.png");
-	sf::Sprite land_sprite = sf::Sprite(land); land_sprite.setPosition(0, WINDOW_Y - WINDOW_Y / 10); land_sprite.setScale(3, 2);
+	sf::Sprite land_sprite(land); 
+    land_sprite.setPosition(0, WINDOW_Y - WINDOW_Y / 10);
+    land_sprite.setScale(3, 2);
 	sf::Texture pipe_up, pipe_down = sf::Texture(); pipe_down.loadFromFile("../Assets/pipe-down.png"); pipe_up.loadFromFile("../Assets/pipe-up.png");
 	sf::Sprite pipe_up_sprite = sf::Sprite(pipe_up); sf::Sprite pipe_down_sprite = sf::Sprite(pipe_down);
 	sf::Texture pipe_shaft = sf::Texture(); pipe_shaft.loadFromFile("../Assets/pipe.png");
@@ -95,6 +102,10 @@ int main()
             background_scroller.update(step_size);
             land_scroller.update(step_size);
 
+            for (auto pipe: pipes){
+                pipe.update(step_size);
+            }
+
 //            // place the top and bottom pipe heads
 //			if (pipe_down_sprite.getPosition().x < -pipe_down_sprite.getGlobalBounds().width) {
 //				pipe_down_sprite.setPosition(WINDOW_X, rgen(rng));
@@ -110,8 +121,14 @@ int main()
 		}
 
 
-        background_scroller.render(window);
-        land_scroller.render(window);
+        background_scroller.render(window, false);
+
+        for (auto pipe: pipes){
+            pipe.render(window, false);
+        }
+
+        land_scroller.render(window, false);
+
         birb.render(window);
 
 		//window.draw(pipe_up_sprite);

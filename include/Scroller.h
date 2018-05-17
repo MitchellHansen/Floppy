@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
-
+#include <unordered_map>
+#include <string>
 
 class Scroller {
 
@@ -9,7 +10,7 @@ public:
     ~Scroller();
 
     void update(double delta_time);
-    void render(sf::RenderWindow &window);
+    void render(sf::RenderWindow &window, bool tiling);
 
     bool collides(sf::FloatRect rectangle);
 
@@ -17,9 +18,10 @@ public:
 
 private:
 
-    sf::Texture texture;
     sf::Sprite sprite;
 
     sf::Vector2f window_size;
     double scroll_speed;
+
+    static std::unordered_map<std::string, sf::Texture> texture_cache;
 };

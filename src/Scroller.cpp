@@ -10,22 +10,25 @@ Scroller::~Scroller() {
 
 void Scroller::setSprite(std::string asset_path, sf::Vector2f sprite_pos, sf::Vector2f sprite_scale)  {
 
-    texture.loadFromFile(asset_path);
-    sprite.setTexture(texture, true);
+    if (!texture_cache.count(asset_path))
+        texture_cache[asset_path].loadFromFile(asset_path);
 
+    sprite.setTexture(texture_cache[asset_path], true);
     sprite.setPosition(sprite_pos);
     sprite.setScale(sprite_scale);
 
 }
 
-void Scroller::render(sf::RenderWindow &window) {
+void Scroller::render(sf::RenderWindow &window, bool tiling) {
 
-    // Take sprite and shift right until x + width past screen edge
+    if (tiling){
+        // Take sprite and shift right until x + width past screen edge
 
-    // Tile left until x past left screen edge
-
-    window.draw(sprite);
-
+        // Tile left until x past left screen edge
+    }
+    else{
+        window.draw(sprite);
+    }
 }
 
 void Scroller::update(double delta_time) {
@@ -44,3 +47,4 @@ bool Scroller::collides(sf::FloatRect rectangle) {
 }
 
 
+std::unordered_map<std::string, sf::Texture> Scroller::texture_cache;
