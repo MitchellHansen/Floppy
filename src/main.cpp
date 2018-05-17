@@ -1,8 +1,8 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include <random>
 #include <chrono>
+#include <Scroller.h>
 #include "Birb.h"
 
 #ifdef linux
@@ -37,11 +37,16 @@ int main()
 
 	sf::RenderWindow window(sf::VideoMode(WINDOW_X, WINDOW_Y), "flappy");
 
-    Birb birb(sf::Vector2i(WINDOW_X, WINDOW_Y));
+    sf::Vector2i window_size(WINDOW_X, WINDOW_Y);
 
-	// Init world
-	sf::Texture background = sf::Texture(); background.loadFromFile("../Assets/sky.png");
-	sf::Sprite background_sprite = sf::Sprite(background); background_sprite.setPosition(0, 0); background_sprite.setScale(8, 8);
+    Birb birb(window_size);
+
+    Scroller background_scroller(window_size, 10.0);
+    background_scroller.setSprite("../Assets/sky.png", sf::Vector2f(0, 0), sf::Vector2f(8, 8));
+    Scroller land_scroller(window_size, 10.0);
+    land_scroller.setSprite("../Assets/land.png", sf::Vector2f(0, window_size.y - 30), sf::Vector2f(3, 2));
+
+
 	sf::Texture land = sf::Texture(); land.loadFromFile("../Assets/land.png");
 	sf::Sprite land_sprite = sf::Sprite(land); land_sprite.setPosition(0, WINDOW_Y - WINDOW_Y / 10); land_sprite.setScale(3, 2);
 	sf::Texture pipe_up, pipe_down = sf::Texture(); pipe_down.loadFromFile("../Assets/pipe-down.png"); pipe_up.loadFromFile("../Assets/pipe-up.png");
@@ -87,56 +92,45 @@ int main()
 			accumulator_time -= step_size;
 
             birb.update(step_size);
-            // place the top and bottom pipe heads
+            background_scroller.update(step_size);
+            land_scroller.update(step_size);
 
-			if (pipe_down_sprite.getPosition().x < -pipe_down_sprite.getGlobalBounds().width) {
-				pipe_down_sprite.setPosition(WINDOW_X, rgen(rng));
-				pipe_up_sprite.setPosition(WINDOW_X, pipe_down_sprite.getPosition().y + pipe_dist);
-			}
-			else {
-				pipe_up_sprite.setPosition(pipe_up_sprite.getPosition().x - step_size * speed, pipe_up_sprite.getPosition().y);
-				pipe_down_sprite.setPosition(pipe_down_sprite.getPosition().x - step_size * speed, pipe_down_sprite.getPosition().y);
-			}
+//            // place the top and bottom pipe heads
+//			if (pipe_down_sprite.getPosition().x < -pipe_down_sprite.getGlobalBounds().width) {
+//				pipe_down_sprite.setPosition(WINDOW_X, rgen(rng));
+//				pipe_up_sprite.setPosition(WINDOW_X, pipe_down_sprite.getPosition().y + pipe_dist);
+//			}
+//			else {
+//				pipe_up_sprite.setPosition(pipe_up_sprite.getPosition().x - step_size * speed, pipe_up_sprite.getPosition().y);
+//				pipe_down_sprite.setPosition(pipe_down_sprite.getPosition().x - step_size * speed, pipe_down_sprite.getPosition().y);
+//			}
 
-            // ================= Scroll background and land
-
-            if (background_sprite.getPosition().x + background_sprite.getGlobalBounds().width < WINDOW_X)
-				background_sprite.setPosition(0, 0);
-			else 
-				background_sprite.setPosition(background_sprite.getPosition().x - step_size * (speed - 100), background_sprite.getPosition().y);
-
-            if (land_sprite.getPosition().x + 10 + land_sprite.getGlobalBounds().width < WINDOW_X)
-				land_sprite.setPosition(14, land_sprite.getPosition().y);
-			else
-				land_sprite.setPosition(land_sprite.getPosition().x - step_size * speed, land_sprite.getPosition().y);
-
-            birb.collisions(pipe_down_sprite, pipe_up_sprite, land_sprite);
-
+            if (land_scroller.collides(birb.getBounds()))
+                birb.reset();
 		}
 
 
-		window.draw(background_sprite);  // Render
-		window.draw(land_sprite);
-
+        background_scroller.render(window);
+        land_scroller.render(window);
         birb.render(window);
 
-		window.draw(pipe_up_sprite);
-		window.draw(pipe_down_sprite);
-
-		pipe_shaft_sprite.setPosition(pipe_up_sprite.getPosition()); // Render the bottom pipe
-		int y_pos = pipe_up_sprite.getPosition().y + pipe_up_sprite.getGlobalBounds().height;
-		while (y_pos < WINDOW_Y) {
-			pipe_shaft_sprite.setPosition(pipe_shaft_sprite.getPosition().x, y_pos);
-			y_pos++;
-			window.draw(pipe_shaft_sprite);
-		}
-
-		y_pos = pipe_down_sprite.getPosition().y; // Render the top pipe
-		while (y_pos > 0) {
-			pipe_shaft_sprite.setPosition(pipe_shaft_sprite.getPosition().x, y_pos);
-			y_pos--;
-			window.draw(pipe_shaft_sprite);
-		}
+		//window.draw(pipe_up_sprite);
+		//window.draw(pipe_down_sprite);
+//
+//		pipe_shaft_sprite.setPosition(pipe_up_sprite.getPosition()); // Render the bottom pipe
+//		int y_pos = pipe_up_sprite.getPosition().y + pipe_up_sprite.getGlobalBounds().height;
+//		while (y_pos < WINDOW_Y) {
+//			pipe_shaft_sprite.setPosition(pipe_shaft_sprite.getPosition().x, y_pos);
+//			y_pos++;
+//			window.draw(pipe_shaft_sprite);
+//		}
+//
+//		y_pos = pipe_down_sprite.getPosition().y; // Render the top pipe
+//		while (y_pos > 0) {
+//			pipe_shaft_sprite.setPosition(pipe_shaft_sprite.getPosition().x, y_pos);
+//			y_pos--;
+//			window.draw(pipe_shaft_sprite);
+//		}
 
 		window.display();
 

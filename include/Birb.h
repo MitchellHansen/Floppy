@@ -21,6 +21,7 @@ public:
 
 
     sf::Vector2f getPosition() {return sprite.getPosition();};
+    sf::FloatRect getBounds() {return sprite.getGlobalBounds();};
 
 private:
 

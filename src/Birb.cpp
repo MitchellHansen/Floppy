@@ -2,17 +2,16 @@
 #include "Birb.h"
 
 
-Birb::Birb(sf::Vector2i window_size) : window_size(window_size) {
+Birb::Birb(sf::Vector2i window_size) : window_size(window_size), textures(4, sf::Texture()) {
 
 
     // Init flappy
-    std::vector<sf::Texture> flappy_texture(4, sf::Texture());
     for (int i = 0; i < 4; i++) {
-        flappy_texture[i].loadFromFile("../Assets/bird.png", sf::IntRect(0, i*24, 34, 24));
+        textures[i].loadFromFile("../Assets/bird.png", sf::IntRect(0, i*24, 34, 24));
 
     }
 
-    sprite.setTexture(flappy_texture[0],true);
+    sprite.setTexture(textures[0],true);
 
     reset();
 }
