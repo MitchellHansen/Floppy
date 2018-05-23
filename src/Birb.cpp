@@ -4,14 +4,13 @@
 
 Birb::Birb(sf::Vector2i window_size) : window_size(window_size), textures(4, sf::Texture()) {
 
-
     // Init flappy
     for (int i = 0; i < 4; i++) {
         textures[i].loadFromFile("../Assets/bird.png", sf::IntRect(0, i*24, 34, 24));
-
     }
 
     sprite.setTexture(textures[0],true);
+    sprite.setOrigin(sprite.getTextureRect().width/2.0f, sprite.getTextureRect().width/2.0f);
 
     reset();
 }

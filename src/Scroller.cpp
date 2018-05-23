@@ -33,8 +33,8 @@ void Scroller::render(sf::RenderWindow &window, bool tiling) {
 
 void Scroller::update(double delta_time) {
 
-    if (sprite.getPosition().x + sprite.getGlobalBounds().width < window_size.x)
-        sprite.setPosition(0, 0);
+    if (sprite.getPosition().x + sprite.getGlobalBounds().width < 0)
+        sprite.setPosition(window_size.x, sprite.getPosition().y);
     else
         sprite.setPosition(sprite.getPosition().x - delta_time * scroll_speed, sprite.getPosition().y);
 

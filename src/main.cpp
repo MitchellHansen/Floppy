@@ -49,8 +49,16 @@ int main()
 
     std::list<Scroller> pipes;
 
-    pipes.emplace_back(Scroller(window_size, 100.0));
-    pipes.back().setSprite("../Assets/pipe-up.png", sf::Vector2f(30, 30), sf::Vector2f(1.1,1.1));
+    pipes.emplace_back(Scroller(window_size, 150.0));
+    pipes.back().setSprite("../Assets/pipe-up.png", sf::Vector2f(30, 700), sf::Vector2f(1.1,1.1));
+    pipes.emplace_back(Scroller(window_size, 150.0));
+    pipes.back().setSprite("../Assets/pipe-down.png", sf::Vector2f(30, -300), sf::Vector2f(1.1,1.1));
+
+    sf::Texture splash_screen_texture;
+    splash_screen_texture.loadFromFile("../Assets/splash.png");
+    sf::Sprite splash_screen(splash_screen_texture);
+    splash_screen.setScale(2.7, 2.7);
+    splash_screen.setPosition(50, 50);
 
 	sf::Texture land = sf::Texture(); land.loadFromFile("../Assets/land.png");
 	sf::Sprite land_sprite(land); 
@@ -102,7 +110,8 @@ int main()
             background_scroller.update(step_size);
             land_scroller.update(step_size);
 
-            for (auto pipe: pipes){
+            //pipes.back().update(step_size);
+            for (Scroller &pipe: pipes){
                 pipe.update(step_size);
             }
 
@@ -130,6 +139,8 @@ int main()
         land_scroller.render(window, false);
 
         birb.render(window);
+
+        window.draw(splash_screen);
 
 		//window.draw(pipe_up_sprite);
 		//window.draw(pipe_down_sprite);
