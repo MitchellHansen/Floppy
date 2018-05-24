@@ -25,11 +25,13 @@ public:
 
 private:
 
+    bool running = false;
     double speed = 0.0;
     double gravity = 7.2;
     double momentum = 0.0;
     sf::Sprite sprite;
     std::vector<sf::Texture> textures;
     sf::Vector2i window_size;
+
 
 };

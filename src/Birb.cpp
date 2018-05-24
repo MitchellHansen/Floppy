@@ -20,32 +20,35 @@ Birb::~Birb() {
 }
 
 void Birb::start() {
-
+    running = true;
 }
 
 void Birb::reset() {
     sprite.setPosition(window_size.x / 2, window_size.y / 2);
     momentum = -2;
+    running = false;
 }
 
 void Birb::click() {
+    running = true;
     momentum = -2;
 }
 
 void Birb::render(sf::RenderWindow &window) {
-
     window.draw(sprite);
 }
 
 void Birb::update(double delta_time) {
 
-    momentum += gravity * delta_time; // Impart gravity
+    if (running) {
+        momentum += gravity * delta_time; // Impart gravity
 
-    sf::Vector2f f_pos = sprite.getPosition();
-    f_pos.y += momentum;
+        sf::Vector2f f_pos = sprite.getPosition();
+        f_pos.y += momentum;
 
-    sprite.setPosition(f_pos);
-    sprite.setRotation(momentum * 10);
+        sprite.setPosition(f_pos);
+        sprite.setRotation(momentum * 10);
+    }
 }
 
 bool Birb::collisions(sf::Sprite top_pipe, sf::Sprite bottom_pipe, sf::Sprite ground) {

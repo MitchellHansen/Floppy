@@ -1,17 +1,12 @@
 #include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
 #include <iostream>
 #include <chrono>
 #include <list>
+#include <Splash.h>
+#include <Scoreboard.h>
 #include "Scroller.h"
 #include "Birb.h"
 
-#ifdef linux
-#elif defined _WIN32
-#elif defined TARGET_OS_MAC
-#endif
-
-const float g = 7.8;
 const int WINDOW_X = 600;
 const int WINDOW_Y = 800;
 
@@ -31,19 +26,22 @@ float elap_time() {
 
 int main()
 {
+    // Program State
 	std::mt19937 rng(time(NULL));
 	std::uniform_int_distribution<int> rgen(100, 400);
 
-	int pipe_dist = 200;
-
 	sf::RenderWindow window(sf::VideoMode(WINDOW_X, WINDOW_Y), "flappy");
-
     sf::Vector2i window_size(WINDOW_X, WINDOW_Y);
 
+
+    // Sprite States
     Birb birb(window_size);
+    Splash splash_screen;
+    Scoreboard scoreboard;
 
     Scroller background_scroller(window_size, 10.0);
     background_scroller.setSprite("../Assets/sky.png", sf::Vector2f(0, 0), sf::Vector2f(8, 8));
+
     Scroller land_scroller(window_size, 10.0);
     land_scroller.setSprite("../Assets/land.png", sf::Vector2f(0, window_size.y - 30), sf::Vector2f(3, 2));
 
@@ -54,25 +52,10 @@ int main()
     pipes.emplace_back(Scroller(window_size, 150.0));
     pipes.back().setSprite("../Assets/pipe-down.png", sf::Vector2f(30, -300), sf::Vector2f(1.1,1.1));
 
-    sf::Texture splash_screen_texture;
-    splash_screen_texture.loadFromFile("../Assets/splash.png");
-    sf::Sprite splash_screen(splash_screen_texture);
-    splash_screen.setScale(2.7, 2.7);
-    splash_screen.setPosition(50, 50);
 
-	sf::Texture land = sf::Texture(); land.loadFromFile("../Assets/land.png");
-	sf::Sprite land_sprite(land); 
-    land_sprite.setPosition(0, WINDOW_Y - WINDOW_Y / 10);
-    land_sprite.setScale(3, 2);
-	sf::Texture pipe_up, pipe_down = sf::Texture(); pipe_down.loadFromFile("../Assets/pipe-down.png"); pipe_up.loadFromFile("../Assets/pipe-up.png");
-	sf::Sprite pipe_up_sprite = sf::Sprite(pipe_up); sf::Sprite pipe_down_sprite = sf::Sprite(pipe_down);
-	sf::Texture pipe_shaft = sf::Texture(); pipe_shaft.loadFromFile("../Assets/pipe.png");
-	sf::Sprite pipe_shaft_sprite = sf::Sprite(pipe_shaft);
-
-
+    // Render Loop
 	float step_size = 0.005f;
-	double frame_time = 0.0, elapsed_time = 0.0, delta_time = 0.0, accumulator_time = 0.0, current_time = 0.0;
-	float speed = 250;
+	double  elapsed_time = 0.0, delta_time = 0.0, accumulator_time = 0.0, current_time = 0.0;
 
 	while (window.isOpen())
 	{
@@ -80,53 +63,55 @@ int main()
 		while (window.pollEvent(event)) {
 			if (event.type == sf::Event::Closed) 
 				window.close();
-			if (event.type == sf::Event::MouseWheelScrolled)
-				if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel)
-					speed += event.mouseWheelScroll.delta * 20;
-			if(event.type == sf::Event::KeyPressed)
-				if (event.key.code == sf::Keyboard::Space)
-					birb.click();
+			if(event.type == sf::Event::KeyPressed) {
+                if (event.key.code == sf::Keyboard::Space)
+                    birb.click();
+                if (event.key.code == sf::Keyboard::Escape)
+                    birb.click();
+            }
 			if (event.type == sf::Event::MouseButtonPressed) {
-				if (event.mouseButton.button == sf::Mouse::Right)
-					pipe_dist -= 10;
-				if (event.mouseButton.button == sf::Mouse::Middle)
-					pipe_dist += 10;
-				if (event.mouseButton.button == sf::Mouse::Left)
+				if (event.mouseButton.button == sf::Mouse::Left){
+                    splash_screen.click();
+                    scoreboard.click();
 					birb.click();
+                }
 			}
 		}
 
-		elapsed_time = elap_time(); // Handle time
+        // Update this frames time values
+		elapsed_time = elap_time();
 		delta_time = elapsed_time - current_time;
 		current_time = elapsed_time;
 		if (delta_time > 0.02f)
 			delta_time = 0.02f;
 		accumulator_time += delta_time;
 
-		while ((accumulator_time - step_size) >= step_size) { // While the frame has sim time, update 
-			accumulator_time -= step_size;
+        // While the frame has sim time, update
+		while ((accumulator_time - step_size) >= step_size) {
 
+            accumulator_time -= step_size;
+
+            // Scroll according to the step size
             birb.update(step_size);
             background_scroller.update(step_size);
             land_scroller.update(step_size);
-
-            //pipes.back().update(step_size);
             for (Scroller &pipe: pipes){
                 pipe.update(step_size);
             }
 
-//            // place the top and bottom pipe heads
-//			if (pipe_down_sprite.getPosition().x < -pipe_down_sprite.getGlobalBounds().width) {
-//				pipe_down_sprite.setPosition(WINDOW_X, rgen(rng));
-//				pipe_up_sprite.setPosition(WINDOW_X, pipe_down_sprite.getPosition().y + pipe_dist);
-//			}
-//			else {
-//				pipe_up_sprite.setPosition(pipe_up_sprite.getPosition().x - step_size * speed, pipe_up_sprite.getPosition().y);
-//				pipe_down_sprite.setPosition(pipe_down_sprite.getPosition().x - step_size * speed, pipe_down_sprite.getPosition().y);
-//			}
-
+            // Check collisions
+            bool collision = false;
             if (land_scroller.collides(birb.getBounds()))
+                collision = true;
+            for (Scroller &pipe: pipes){
+                if (pipe.collides(birb.getBounds()))
+                    collision = true;
+            }
+
+            if (collision){
                 birb.reset();
+                scoreboard.show(100);
+            }
 		}
 
 
@@ -140,32 +125,11 @@ int main()
 
         birb.render(window);
 
-        window.draw(splash_screen);
-
-		//window.draw(pipe_up_sprite);
-		//window.draw(pipe_down_sprite);
-//
-//		pipe_shaft_sprite.setPosition(pipe_up_sprite.getPosition()); // Render the bottom pipe
-//		int y_pos = pipe_up_sprite.getPosition().y + pipe_up_sprite.getGlobalBounds().height;
-//		while (y_pos < WINDOW_Y) {
-//			pipe_shaft_sprite.setPosition(pipe_shaft_sprite.getPosition().x, y_pos);
-//			y_pos++;
-//			window.draw(pipe_shaft_sprite);
-//		}
-//
-//		y_pos = pipe_down_sprite.getPosition().y; // Render the top pipe
-//		while (y_pos > 0) {
-//			pipe_shaft_sprite.setPosition(pipe_shaft_sprite.getPosition().x, y_pos);
-//			y_pos--;
-//			window.draw(pipe_shaft_sprite);
-//		}
+        splash_screen.render(window);
+        scoreboard.render(window);
 
 		window.display();
-
-
-
 	}
 	return 0;
-
 }
 

@@ -1,7 +1,3 @@
-//
-// Created by mrh on 5/23/18.
-//
-
 #include "Splash.h"
 
 Splash::Splash() {
