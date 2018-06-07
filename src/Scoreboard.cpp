@@ -21,11 +21,13 @@ Scoreboard::Scoreboard() {
     for (int i = 0; i < 3; i++){
         score.emplace_back(sf::Sprite());
         score.back().setPosition(sf::Vector2f(100, 100));
+        score.back().setScale(3, 3);
     }
 
     for (int i = 0; i < 3; i++){
         best_score.emplace_back(sf::Sprite());
-        best_score.back().setPosition(sf::Vector2f(100, 100));
+        best_score.back().setPosition(sf::Vector2f(400, 400));
+        best_score.back().setScale(3, 3);
     }
 
     board_texture.loadFromFile("../Assets/scoreboard.png");
@@ -85,6 +87,7 @@ void Scoreboard::show(int score) {
         int val = score % mod;
         score /= 10;
         best_score[i].setTexture(small_font[val]);
+
     }
 
     visible = true;
