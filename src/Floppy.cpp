@@ -41,14 +41,14 @@ sf::Vector2f Floppy::getScaledCoords(sf::Vector2f normalized_position) {
 }
 
 void Floppy::setScreenScale(float percentage) {
-    window.setSize()
+    //window.setSize();
 }
 
 
 sf::Vector2i Floppy::BASE_WINDOW_SIZE(900, 1600);
 sf::Vector2f Floppy::DEFAULT_SCREEN_SCALE(0.5,0.5);
 
-std::shared_ptr<Floppy> Floppy::getInstace() {
+std::shared_ptr<Floppy> Floppy::getInstance() {
     if (!instance)
         instance = new Floppy();
     return instance;

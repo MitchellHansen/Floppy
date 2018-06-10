@@ -1,6 +1,10 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <memory>
+#include "Birb.h"
+#include "Scroller.h"
+#include "Scoreboard.h"
+#include "Splash.h"
 
 class Floppy {
 
@@ -10,7 +14,7 @@ public:
     static sf::Vector2f getScaledCoords(sf::Vector2f normalized_position);
     static void setScreenScale(float percentage);
 
-    static std::shared_ptr<Floppy> getInstace();
+    static std::shared_ptr<Floppy> getInstance();
 
     void loop();
     void render();
