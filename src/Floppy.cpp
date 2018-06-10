@@ -1,19 +1,18 @@
 #include <chrono>
-#include <Birb.h>
-#include <Splash.h>
-#include <Scoreboard.h>
-#include <Scroller.h>
+#include "Scoreboard.h"
+#include "Scroller.h"
+#include "Splash.h"
 #include "Floppy.h"
+#include "Birb.h"
 
 
 Floppy::Floppy() :
-        window_size(BASE_WINDOW_SIZE * DEFAULT_SCREEN_SCALE),
         window(sf::VideoMode(window_size.x, window_size.y), "Floppy"),
         birb(window_size),
         background(window_size, 10.0),
         ground(window_size, 10.0)
 {
-    background.setSprite("../Assets/sky.png", sf::Vector2f(0, 0), sf::Vector2f(8, 8));
+    background.setSprite("../Assets/sky.png", getScaledCoords(sf::Vector2f(0,0)), sf::Vector2f(8, 8));
     ground.setSprite("../Assets/land.png", sf::Vector2f(0, window_size.y - 30), sf::Vector2f(3, 2));
 
     pipes.emplace_back(Scroller(window_size, 150.0));
@@ -22,7 +21,7 @@ Floppy::Floppy() :
     pipes.back().setSprite("../Assets/pipe-down.png", sf::Vector2f(30, -300), sf::Vector2f(1.1,1.1));
 }
 
-float Floppy::elapsed_time(){
+float Floppy::elapsedTime(){
     static std::chrono::time_point<std::chrono::system_clock> start;
     static bool started = false;
 
@@ -40,8 +39,29 @@ sf::Vector2f Floppy::getScaledCoords(sf::Vector2f normalized_position) {
     return sf::Vector2f();
 }
 
-void Floppy::setScreenScale(float percentage) {
-    //window.setSize();
+sf::Vector2i Floppy::getScaledCoords(sf::Vector2i normalized_position) {
+    return sf::Vector2i();
+}
+
+sf::Vector2u Floppy::getScaledCoords(sf::Vector2u normalized_position) {
+    return sf::Vector2u();
+}
+
+sf::Vector2f Floppy::getScaledScale(sf::Vector2f scale) {
+    return sf::Vector2f();
+}
+
+sf::Vector2i Floppy::getScaledScale(sf::Vector2i scale) {
+    return sf::Vector2i();
+}
+
+sf::Vector2u Floppy::getScaledScale(sf::Vector2u scale) {
+    return sf::Vector2u();
+}
+
+void Floppy::setScreenScale(sf::Vector2f scale) {
+    window_scale = scale;
+    window.setSize(sf::Vector2u(getScaledCoords(scale)));
 }
 
 
@@ -82,7 +102,7 @@ void Floppy::loop() {
         }
 
         // Update this frames time values
-        elapsed_time = elapsed_time();
+        elapsed_time = elapsedTime();
         delta_time = elapsed_time - current_time;
         current_time = elapsed_time;
         if (delta_time > 0.02f)
@@ -142,5 +162,4 @@ void Floppy::render() {
 void Floppy::update(double delta_time) {
 
 }
-
 

@@ -1,6 +1,6 @@
 #include <Scroller.h>
 
-Scroller::Scroller(sf::Vector2i window_size, double scroll_speed) : window_size(window_size), scroll_speed(scroll_speed){
+Scroller::Scroller(double scroll_speed) : scroll_speed(scroll_speed){
 
 }
 
@@ -21,6 +21,8 @@ void Scroller::setSprite(std::string asset_path, sf::Vector2f sprite_pos, sf::Ve
 
 void Scroller::render(sf::RenderWindow &window, bool tiling) {
 
+    // Resize sprite on each render!
+
     if (tiling){
         // Take sprite and shift right until x + width past screen edge
 
@@ -33,8 +35,9 @@ void Scroller::render(sf::RenderWindow &window, bool tiling) {
 
 void Scroller::update(double delta_time) {
 
+    
     if (sprite.getPosition().x + sprite.getGlobalBounds().width < 0)
-        sprite.setPosition(window_size.x, sprite.getPosition().y);
+        sprite.setPosition(, sprite.getPosition().y);
     else
         sprite.setPosition(sprite.getPosition().x - delta_time * scroll_speed, sprite.getPosition().y);
 
