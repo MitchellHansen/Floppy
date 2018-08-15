@@ -39,7 +39,7 @@ int main()
 	// Init flappy
 	sf::Texture flappy_texture[4] = { sf::Texture(), sf::Texture(), sf::Texture(), sf::Texture() };
 	for (int i = 0; i < 4; i++) {
-		flappy_texture[i].loadFromFile("..\\Assets\\bird.png", sf::IntRect(0, i*12, 34, 24));
+		flappy_texture[i].loadFromFile("../Assets/bird.png", sf::IntRect(0, i*12, 34, 24));
 	}
 
 	sf::RectangleShape flappy(sf::Vector2f(34, 24));
@@ -47,13 +47,13 @@ int main()
 	flappy.setPosition(WINDOW_X / 2, WINDOW_Y / 2);
 
 	// Init world
-	sf::Texture background = sf::Texture(); background.loadFromFile("..\\Assets\\sky.png");
+	sf::Texture background = sf::Texture(); background.loadFromFile("../Assets/sky.png");
 	sf::Sprite background_sprite = sf::Sprite(background); background_sprite.setPosition(0, 0); background_sprite.setScale(8, 8);
-	sf::Texture land = sf::Texture(); land.loadFromFile("..\\Assets\\land.png");
+	sf::Texture land = sf::Texture(); land.loadFromFile("../Assets/land.png");
 	sf::Sprite land_sprite = sf::Sprite(land); land_sprite.setPosition(0, WINDOW_Y - WINDOW_Y / 10); land_sprite.setScale(3, 2);
-	sf::Texture pipe_up, pipe_down = sf::Texture(); pipe_down.loadFromFile("..\\Assets\\pipe-down.png"); pipe_up.loadFromFile("..\\Assets\\pipe-up.png");
+	sf::Texture pipe_up, pipe_down = sf::Texture(); pipe_down.loadFromFile("../Assets/pipe-down.png"); pipe_up.loadFromFile("../Assets/pipe-up.png");
 	sf::Sprite pipe_up_sprite = sf::Sprite(pipe_up); sf::Sprite pipe_down_sprite = sf::Sprite(pipe_down);
-	sf::Texture pipe_shaft = sf::Texture(); pipe_shaft.loadFromFile("..\\Assets\\pipe.png");
+	sf::Texture pipe_shaft = sf::Texture(); pipe_shaft.loadFromFile("../Assets/pipe.png");
 	sf::Sprite pipe_shaft_sprite = sf::Sprite(pipe_shaft);
 
 	double momentum = 0;
